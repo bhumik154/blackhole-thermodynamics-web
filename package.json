@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:parity": "python scripts/gen-reference.py && tsx scripts/verify-parity.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

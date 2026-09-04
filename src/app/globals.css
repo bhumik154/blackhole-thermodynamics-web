@@ -1,26 +1,117 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Cinematic observatory palette: near-black deep-space base, warm
+     plasma/amber + cool cyan data accents. Regime badge colors are
+     direct ports of the original app's Python hex values, kept separate
+     from the two data accents so they never collide. */
+  --background: #07060a;
+  --background-deep: #030308;
+  --surface: oklch(20% 0.02 280 / 0.55);
+  --surface-border: oklch(70% 0.02 280 / 0.10);
+  --foreground: #ece9f0;
+  --muted: oklch(75% 0.01 280 / 0.42);
+
+  --accent-plasma: #ff8a3d;
+  --accent-plasma-soft: #ffb37a;
+  --accent-cyan: #4fd8ff;
+  --accent-cyan-soft: #8fe8ff;
+
+  --regime-micro: #f472b6;
+  --regime-sub: #fb923c;
+  --regime-stellar: #38bdf8;
+  --regime-imbh: #a78bfa;
+  --regime-smbh: #facc15;
+
+  --glow-plasma: 0 0 24px -4px rgba(255, 138, 61, 0.55);
+  --glow-cyan: 0 0 24px -4px rgba(79, 216, 255, 0.55);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -6px rgba(0, 0, 0, 0.6);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.5), 0 16px 40px -8px rgba(0, 0, 0, 0.7);
+
+  /* Type scale: 5 named steps, fluid via clamp() so sections don't need
+     separate sm:/lg: overrides. Display/headline use the serif display
+     font; body/title use the UI sans; data values use the mono font
+     (applied per-component via font-mono, not baked into these tokens). */
+  --text-display: clamp(2.5rem, 1.9rem + 2.6vw, 4rem);
+  --text-display--line-height: 1.05;
+  --text-headline: clamp(1.75rem, 1.5rem + 1.2vw, 2.5rem);
+  --text-headline--line-height: 1.15;
+  --text-title: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-title--line-height: 1.3;
+  --text-body: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  --text-body--line-height: 1.6;
+  --text-caption: clamp(0.6875rem, 0.66rem + 0.1vw, 0.75rem);
+  --text-caption--line-height: 1.4;
+
+  /* Motion: one shared deceleration curve, mirrored in src/lib/motion.ts
+     for framer-motion/GSAP call sites so nothing on the site decelerates
+     differently. */
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-deep: var(--background-deep);
+  --color-surface: var(--surface);
+  --color-surface-border: var(--surface-border);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-muted: var(--muted);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-accent-plasma: var(--accent-plasma);
+  --color-accent-plasma-soft: var(--accent-plasma-soft);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-cyan-soft: var(--accent-cyan-soft);
+
+  --color-regime-micro: var(--regime-micro);
+  --color-regime-sub: var(--regime-sub);
+  --color-regime-stellar: var(--regime-stellar);
+  --color-regime-imbh: var(--regime-imbh);
+  --color-regime-smbh: var(--regime-smbh);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-glow-plasma: var(--glow-plasma);
+  --shadow-glow-cyan: var(--glow-cyan);
+
+  --text-display: var(--text-display);
+  --text-display--line-height: var(--text-display--line-height);
+  --text-headline: var(--text-headline);
+  --text-headline--line-height: var(--text-headline--line-height);
+  --text-title: var(--text-title);
+  --text-title--line-height: var(--text-title--line-height);
+  --text-body: var(--text-body);
+  --text-body--line-height: var(--text-body--line-height);
+  --text-caption: var(--text-caption);
+  --text-caption--line-height: var(--text-caption--line-height);
+
+  --ease-standard: var(--ease-standard);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent-plasma);
+  color: var(--background);
+}
+
+/* Horizon visual: idle accretion-disk rotation, paused via [data-paused]
+   while off-screen (see HorizonVisual.tsx's IntersectionObserver), same
+   pattern used for any future canvas/CSS animation that needs to stop
+   ticking when scrolled away. */
+@keyframes horizon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
