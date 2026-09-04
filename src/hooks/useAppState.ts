@@ -24,6 +24,7 @@ interface FeedState {
   log: number[]; // indices into THROWABLES
 }
 
+const DEFAULT_TAB: Tab = "single";
 const DEFAULT_SINGLE: SingleState = { mass: 10, preset: "Stellar (10 M☉)" };
 const DEFAULT_COMPARE: CompareState = {
   massA: 10,
@@ -57,39 +58,68 @@ function parseFeedLog(s: string | null): number[] {
     .filter((i) => Number.isInteger(i) && i >= 0 && i < THROWABLES.length);
 }
 
+// The page is statically prerendered with no query string, so the first
+// client render must match that (all defaults) to avoid a hydration
+// mismatch. The real URL state (if any) is applied in a mount-only effect
+// that runs after hydration, not read during the initial render.
 export function useAppState() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initializedFromUrl = useRef(false);
+  const hasAppliedUrlState = useRef(false);
+  const hasWrittenSinceMount = useRef(false);
 
-  const [tab, setTab] = useState<Tab>(() => {
+  const [tab, setTab] = useState<Tab>(DEFAULT_TAB);
+  const [single, setSingle] = useState<SingleState>(DEFAULT_SINGLE);
+  const [compare, setCompare] = useState<CompareState>(DEFAULT_COMPARE);
+  const [feed, setFeed] = useState<FeedState>(DEFAULT_FEED);
+
+  // Apply real URL state once, post-hydration. This is a deliberate
+  // one-time sync from an external source (the URL, unreadable at
+  // prerender time) rather than the repeated-cascading-render pattern the
+  // set-state-in-effect rule warns about - it runs exactly once (guarded
+  // by the ref) and never again for the life of the component.
+  useEffect(() => {
+    if (hasAppliedUrlState.current) return;
+    hasAppliedUrlState.current = true;
+
+    /* eslint-disable react-hooks/set-state-in-effect --
+       one-time restore from the URL, guarded above to run exactly once */
     const t = searchParams.get("tab");
-    return t === "compare" || t === "feed" ? t : "single";
-  });
+    if (t === "compare" || t === "feed") setTab(t);
 
-  const [single, setSingle] = useState<SingleState>(() => ({
-    mass: parseMass(searchParams.get("m"), DEFAULT_SINGLE.mass),
-    preset: validPresetLabel(searchParams.get("preset"), DEFAULT_SINGLE.preset),
-  }));
-
-  const [compare, setCompare] = useState<CompareState>(() => ({
-    massA: parseMass(searchParams.get("ma"), DEFAULT_COMPARE.massA),
-    presetA: validPresetLabel(searchParams.get("pa"), DEFAULT_COMPARE.presetA),
-    massB: parseMass(searchParams.get("mb"), DEFAULT_COMPARE.massB),
-    presetB: validPresetLabel(searchParams.get("pb"), DEFAULT_COMPARE.presetB),
-  }));
-
-  const [feed, setFeed] = useState<FeedState>(() => ({
-    mass: parseMass(searchParams.get("feedMass"), DEFAULT_FEED.mass),
-    log: parseFeedLog(searchParams.get("feedLog")),
-  }));
+    if (searchParams.has("m") || searchParams.has("preset")) {
+      setSingle({
+        mass: parseMass(searchParams.get("m"), DEFAULT_SINGLE.mass),
+        preset: validPresetLabel(searchParams.get("preset"), DEFAULT_SINGLE.preset),
+      });
+    }
+    if (searchParams.has("ma") || searchParams.has("mb")) {
+      setCompare({
+        massA: parseMass(searchParams.get("ma"), DEFAULT_COMPARE.massA),
+        presetA: validPresetLabel(searchParams.get("pa"), DEFAULT_COMPARE.presetA),
+        massB: parseMass(searchParams.get("mb"), DEFAULT_COMPARE.massB),
+        presetB: validPresetLabel(searchParams.get("pb"), DEFAULT_COMPARE.presetB),
+      });
+    }
+    if (searchParams.has("feedMass") || searchParams.has("feedLog")) {
+      setFeed({
+        mass: parseMass(searchParams.get("feedMass"), DEFAULT_FEED.mass),
+        log: parseFeedLog(searchParams.get("feedLog")),
+      });
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Debounced URL sync: writes only the active tab's state, so a shared
-  // link reflects exactly what the sender was looking at.
+  // link reflects exactly what the sender was looking at. Skipped on the
+  // very first run after the URL-restore effect above, so restoring state
+  // doesn't immediately rewrite the URL it was just read from.
   useEffect(() => {
-    if (!initializedFromUrl.current) {
-      initializedFromUrl.current = true;
+    if (!hasAppliedUrlState.current) return;
+    if (!hasWrittenSinceMount.current) {
+      hasWrittenSinceMount.current = true;
       return;
     }
     const params = new URLSearchParams();

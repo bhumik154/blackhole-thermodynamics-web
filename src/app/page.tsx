@@ -6,6 +6,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TabBar } from "@/components/layout/TabBar";
 import { SingleTab } from "@/components/tabs/SingleTab";
+import { CompareTab } from "@/components/tabs/CompareTab";
+import { FeedTab } from "@/components/tabs/FeedTab";
 
 function AppContent() {
   const state = useAppState();
@@ -26,10 +28,25 @@ function AppContent() {
           />
         ) : null}
         {state.tab === "compare" ? (
-          <div className="text-muted">Compare tab coming up next.</div>
+          <CompareTab
+            massA={state.compare.massA}
+            presetA={state.compare.presetA}
+            massB={state.compare.massB}
+            presetB={state.compare.presetB}
+            onMassAChange={state.setCompareMassA}
+            onPresetAChange={state.setComparePresetA}
+            onMassBChange={state.setCompareMassB}
+            onPresetBChange={state.setComparePresetB}
+          />
         ) : null}
         {state.tab === "feed" ? (
-          <div className="text-muted">Feed tab coming up next.</div>
+          <FeedTab
+            mass={state.feed.mass}
+            log={state.feed.log}
+            baselineMass={state.feedBaselineMass}
+            onThrow={state.feedThrow}
+            onReset={state.resetFeed}
+          />
         ) : null}
       </main>
       <Footer />

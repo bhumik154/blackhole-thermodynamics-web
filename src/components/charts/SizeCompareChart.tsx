@@ -76,7 +76,7 @@ export function SizeCompareChart({ massSolar, rsKm }: SizeCompareChartProps) {
                   fill="var(--muted)"
                   dominantBaseline="middle"
                 >
-                  {row.km < 0.01 || row.km >= 1e6 ? `${row.km.toExponential(1)} km` : `${row.km.toLocaleString(undefined, { maximumFractionDigits: 0 })} km`}
+                  {row.km < 0.01 || row.km >= 1e6 ? `${row.km.toExponential(1)} km` : `${row.km.toLocaleString("en-US", { maximumFractionDigits: 0 })} km`}
                 </text>
               </g>
             );
