@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <footer className="max-w-5xl mx-auto w-full px-4 py-10 text-center">
       <div className="text-caption text-muted uppercase tracking-widest">
-        Bekenstein-Hawking Thermodynamics · NIST CODATA 2018
+        Bekenstein-Hawking Thermodynamics
       </div>
       <div className="text-caption text-muted mt-2 flex items-center justify-center gap-3">
         <a

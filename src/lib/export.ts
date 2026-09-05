@@ -109,7 +109,7 @@ tr:nth-child(even){background:rgba(255,255,255,0.02)}tr:hover{background:rgba(25
 <h1 style="font-size:22px;font-weight:700;margin-bottom:4px">Black Hole Thermodynamics</h1>
 <p style="font-size:11px;color:#555;letter-spacing:0.06em;margin-bottom:24px">BHUMIK KHATWANI · ASTROPHYSICS, UIUC · ${new Date().toISOString().slice(0, 10)}</p>
 ${buildBody(input)}
-<p style="text-align:center;font-size:9px;color:#333;margin-top:32px;letter-spacing:0.08em">BEKENSTEIN-HAWKING THERMODYNAMICS · NIST CODATA 2018</p>
+<p style="text-align:center;font-size:9px;color:#333;margin-top:32px;letter-spacing:0.08em">BEKENSTEIN-HAWKING THERMODYNAMICS</p>
 </body></html>`;
 }
 
