@@ -67,13 +67,13 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
 
       <div className="flex gap-3 flex-wrap items-center">
         <RegimeBadge massSolar={mass} inline />
-        <Surface padding="sm" rounded="lg" className="inline-flex items-center gap-2">
+        <Surface padding="sm" rounded="lg" hoverLift className="inline-flex items-center gap-2">
           <span className="text-caption uppercase tracking-widest text-muted">Mass</span>
           <span className="font-mono text-body font-bold" style={{ color: "var(--accent-plasma)" }}>
             {fmtSci(mass)} M☉
           </span>
         </Surface>
-        <Surface padding="sm" rounded="lg" className="inline-flex items-center gap-2">
+        <Surface padding="sm" rounded="lg" hoverLift className="inline-flex items-center gap-2">
           <span className="text-caption uppercase tracking-widest text-muted">Consumed</span>
           <span className="font-mono text-body font-bold" style={{ color: "var(--accent-cyan)" }}>
             {log.length}
@@ -108,18 +108,34 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
 
       <div>
         <h3 className="text-caption uppercase tracking-widest text-muted mb-2">Current Properties</h3>
-        <div ref={metricGridRef} data-reveal data-revealed={metricGridRevealed} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <MetricCard label="Schwarzschild Radius" value={fmtSci(props.rsKm)} unit="km" accent="var(--accent-cyan)" />
-          <MetricCard label="Hawking Temperature" value={fmtSci(props.tempK)} unit="Kelvin" accent="var(--accent-plasma)" />
-          <MetricCard label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="var(--accent-entropy)" />
-          <MetricCard label="Evaporation Time" value={fmtTime(props.evapYr)} accent="var(--muted)" />
+        <div
+          ref={metricGridRef}
+          data-reveal
+          data-revealed={metricGridRevealed}
+          className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3"
+        >
+          {/* Same 3 headline quantities get hero treatment as the Single
+              tab, for a consistent "which numbers matter" story across
+              the app. */}
+          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
+            <MetricCard size="lg" label="Schwarzschild Radius" value={fmtSci(props.rsKm)} unit="km" accent="var(--accent-cyan)" />
+          </div>
+          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
+            <MetricCard size="lg" label="Hawking Temperature" value={fmtSci(props.tempK)} unit="Kelvin" accent="var(--accent-plasma)" />
+          </div>
+          <div className="col-span-2 sm:col-span-4 lg:col-span-2">
+            <MetricCard size="lg" label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="var(--accent-entropy)" />
+          </div>
+          <div className="col-span-2 sm:col-span-4 lg:col-span-6">
+            <MetricCard size="sm" label="Evaporation Time" value={fmtTime(props.evapYr)} accent="var(--muted)" />
+          </div>
         </div>
       </div>
 
       {log.length > 0 ? (
         <>
-          <div>
-            <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
+          <Surface hoverLift className="flex flex-col gap-2">
+            <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-plasma)" }}>
               Growth since you started
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -142,15 +158,15 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
                 );
               })}
             </div>
-          </div>
+          </Surface>
 
-          <div>
-            <h3 className="text-caption uppercase tracking-widest text-muted mb-2">What you&apos;ve created</h3>
+          <Surface hoverLift className="flex flex-col gap-2">
+            <h3 className="text-caption uppercase tracking-widest text-muted">What you&apos;ve created</h3>
             <FactList facts={facts} limit={3} />
-          </div>
+          </Surface>
 
           {lastItem ? (
-            <Surface padding="md" rounded="lg">
+            <Surface padding="md" rounded="lg" hoverLift>
               <div className="text-caption text-muted italic leading-relaxed">
                 {lastItem.icon} {lastItem.quip}
               </div>

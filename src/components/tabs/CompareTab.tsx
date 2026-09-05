@@ -139,7 +139,7 @@ export function CompareTab({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="flex flex-col gap-3">
+        <Surface hoverLift className="flex flex-col gap-3">
           <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-plasma)" }}>
             Black Hole A
           </h3>
@@ -151,9 +151,9 @@ export function CompareTab({
             idPrefix="cmp-a"
             accent="var(--accent-plasma)"
           />
-          <RegimeBadge massSolar={massA} />
-        </div>
-        <div className="flex flex-col gap-3">
+          <RegimeBadge massSolar={massA} inline />
+        </Surface>
+        <Surface hoverLift className="flex flex-col gap-3">
           <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-cyan)" }}>
             Black Hole B
           </h3>
@@ -165,11 +165,11 @@ export function CompareTab({
             idPrefix="cmp-b"
             accent="var(--accent-cyan)"
           />
-          <RegimeBadge massSolar={massB} />
-        </div>
+          <RegimeBadge massSolar={massB} inline />
+        </Surface>
       </div>
 
-      <Surface padding="none" className="overflow-x-auto">
+      <Surface padding="none" hoverLift className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-surface-border">
@@ -197,18 +197,18 @@ export function CompareTab({
       </Surface>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
+        <Surface hoverLift className="flex flex-col gap-2">
+          <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-plasma)" }}>
             Facts: A
           </h3>
           <FactList facts={factsA} limit={3} />
-        </div>
-        <div>
-          <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-cyan)" }}>
+        </Surface>
+        <Surface hoverLift className="flex flex-col gap-2">
+          <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-cyan)" }}>
             Facts: B
           </h3>
           <FactList facts={factsB} limit={3} />
-        </div>
+        </Surface>
       </div>
     </div>
   );
