@@ -39,7 +39,7 @@ export function SizeCompareChart({ massSolar, rsKm }: SizeCompareChartProps) {
   const xTicks = xScale.ticks(4);
 
   return (
-    <Surface padding="md">
+    <Surface padding="md" hoverLift>
       <div className="text-caption text-muted mb-1 uppercase tracking-wide">
         Size comparison · {getSizeContext(rsKm)}
       </div>

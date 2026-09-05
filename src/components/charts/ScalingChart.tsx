@@ -84,7 +84,7 @@ export function ScalingChart({
   }
 
   return (
-    <Surface padding="md">
+    <Surface padding="md" hoverLift>
       <div className="text-caption text-muted mb-1 uppercase tracking-wide">{label}</div>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}

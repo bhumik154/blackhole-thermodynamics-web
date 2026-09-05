@@ -15,6 +15,8 @@ interface SurfaceOwnProps {
   interactive?: boolean;
   /** "inline" (default) row-centers single-line button content for touch-target sizing; "stack" keeps block flow for multi-line content (e.g. an icon+name+value card) and only adds the min-height. */
   contentLayout?: "inline" | "stack";
+  /** Subtle hover scale + shadow escalation for bento-style tiles. Independent of `interactive` (which is about click/focus affordances) - a purely informational card can lift on hover without implying it's clickable. Plain CSS transition, so the existing global prefers-reduced-motion gate in globals.css neutralizes it automatically. */
+  hoverLift?: boolean;
   accentFocus?: AccentFocus;
   rounded?: SurfaceRounded;
   className?: string;
@@ -58,6 +60,7 @@ export function Surface({
   shadow = true,
   interactive = false,
   contentLayout = "inline",
+  hoverLift = false,
   accentFocus = "cyan",
   rounded = "xl",
   className = "",
@@ -96,6 +99,10 @@ export function Surface({
         .join(" ")
     : "";
 
+  const hoverLiftClass = hoverLift
+    ? "transition-transform duration-200 ease-[var(--ease-standard)] hover:scale-[1.02] hover:shadow-card-hover"
+    : "";
+
   return (
     <Tag
       className={[
@@ -105,6 +112,7 @@ export function Surface({
         PADDING_CLASS[padding],
         shadow ? "shadow-card" : "",
         interactiveClass,
+        hoverLiftClass,
         className,
       ]
         .filter(Boolean)

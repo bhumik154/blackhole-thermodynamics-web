@@ -140,8 +140,8 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
   }, []);
 
   return (
-    <Surface background="background-deep" padding="md" className="flex flex-col items-center">
-      <div ref={containerRef} className="w-full max-w-[220px] aspect-square">
+    <Surface background="background-deep" padding="md" hoverLift className="flex flex-col items-center h-full justify-center">
+      <div ref={containerRef} className="w-full max-w-[320px] aspect-square">
         <canvas
           ref={canvasRef}
           className="w-full h-full"
