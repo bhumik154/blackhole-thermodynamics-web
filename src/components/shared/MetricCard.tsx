@@ -1,3 +1,5 @@
+import { Surface } from "./Surface";
+
 interface MetricCardProps {
   label: string;
   value: string;
@@ -7,7 +9,7 @@ interface MetricCardProps {
 
 export function MetricCard({ label, value, unit, accent = "var(--accent-plasma)" }: MetricCardProps) {
   return (
-    <div className="rounded-xl border border-surface-border bg-surface p-3.5 shadow-card transition-colors hover:border-[color-mix(in_oklch,var(--accent-plasma)_40%,transparent)]">
+    <Surface padding="md" interactive accentFocus="cyan" className="block">
       <div className="text-caption uppercase tracking-widest text-muted">{label}</div>
       <div
         className="font-mono text-title font-bold leading-tight mt-1"
@@ -16,6 +18,6 @@ export function MetricCard({ label, value, unit, accent = "var(--accent-plasma)"
         {value}
       </div>
       {unit ? <div className="text-caption text-muted mt-1">{unit}</div> : null}
-    </div>
+    </Surface>
   );
 }

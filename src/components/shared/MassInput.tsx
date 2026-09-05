@@ -12,6 +12,12 @@ interface MassInputProps {
 const MIN_MASS = 1e-20;
 const MAX_MASS = 1e12;
 
+// Shared by both fields below - kept as a literal class string rather than
+// a Surface-wrapped component, since native <input>/<select> need their
+// own element semantics and there are only 2 call sites, both in this file.
+const inputSurfaceClass =
+  "w-full min-h-11 rounded-lg border border-surface-border bg-surface px-3 py-2 text-body text-foreground focus:outline-none focus-visible:ring-4 focus-visible:ring-[color-mix(in_oklch,var(--accent-cyan)_35%,transparent)]";
+
 export function MassInput({
   massSolar,
   onMassChange,
@@ -23,7 +29,7 @@ export function MassInput({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div>
-        <label htmlFor={`${idPrefix}-mass`} className="text-caption uppercase tracking-widest text-muted block mb-1.5">
+        <label htmlFor={`${idPrefix}-mass`} className="text-caption uppercase tracking-widest text-muted block mb-2">
           Mass (solar masses M☉)
         </label>
         <input
@@ -40,12 +46,12 @@ export function MassInput({
             onMassChange(clamped);
             if (presetLabel !== "Custom") onPresetChange("Custom");
           }}
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 font-mono text-body text-foreground focus:outline-none focus:ring-1 focus:ring-[color-mix(in_oklch,var(--accent-cyan)_60%,transparent)]"
+          className={`${inputSurfaceClass} font-mono`}
           style={{ accentColor: accent }}
         />
       </div>
       <div>
-        <label htmlFor={`${idPrefix}-preset`} className="text-caption uppercase tracking-widest text-muted block mb-1.5">
+        <label htmlFor={`${idPrefix}-preset`} className="text-caption uppercase tracking-widest text-muted block mb-2">
           Or load a preset
         </label>
         <select
@@ -57,7 +63,7 @@ export function MassInput({
             const preset = PRESETS.find((p) => p.label === label);
             if (preset && preset.massSolar !== null) onMassChange(preset.massSolar);
           }}
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-body text-foreground focus:outline-none focus:ring-1 focus:ring-[color-mix(in_oklch,var(--accent-cyan)_60%,transparent)]"
+          className={inputSurfaceClass}
         >
           {PRESETS.map((p) => (
             <option key={p.label} value={p.label}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ExportInput, downloadExport } from "@/lib/export";
+import { Surface } from "@/components/shared/Surface";
 
 interface ExportButtonProps {
   input: ExportInput;
@@ -9,11 +10,15 @@ interface ExportButtonProps {
 
 export function ExportButton({ input, filenameSuffix }: ExportButtonProps) {
   return (
-    <button
+    <Surface
+      as="button"
+      padding="sm"
+      rounded="lg"
+      interactive
       onClick={() => downloadExport(input, filenameSuffix)}
-      className="rounded-lg border border-surface-border bg-surface px-3.5 py-1.5 text-caption uppercase tracking-widest text-muted hover:text-accent-cyan hover:border-[color-mix(in_oklch,var(--accent-cyan)_40%,transparent)] transition-colors"
+      className="text-caption uppercase tracking-widest text-muted hover:text-accent-cyan"
     >
       ⬇ Export
-    </button>
+    </Surface>
   );
 }

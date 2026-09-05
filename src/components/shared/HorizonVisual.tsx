@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import { scaleLog } from "d3-scale";
+import { Surface } from "./Surface";
+import { BACKGROUND_DEEP_HEX } from "@/lib/theme";
+import { fmtSci } from "@/lib/format";
 
 interface HorizonVisualProps {
   rsKm: number;
@@ -31,7 +34,7 @@ function tempToColor(tempK: number): { core: string; glow: string } {
 export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({ angle: 0, paused: false, rsKm, tempK });
+  const stateRef = useRef({ angle: 0, paused: false, rsKm, tempK, reducedMotion: false });
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -58,6 +61,8 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
     }
     resize();
     window.addEventListener("resize", resize);
+
+    stateRef.current.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -93,6 +98,8 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
       const streakCount = 5;
       for (let i = 0; i < streakCount; i++) {
         const a0 = (i / streakCount) * Math.PI * 2;
+        // 1.7 rad offset per streak keeps the 5 streaks' opacity phases
+        // visually desynchronized instead of all pulsing in lockstep.
         const opacity = 0.15 + 0.1 * Math.sin(i * 1.7);
         context.strokeStyle = `rgba(255,255,255,${opacity})`;
         context.lineWidth = 1.5;
@@ -105,7 +112,7 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
       // Event horizon: solid black disk
       context.beginPath();
       context.arc(cx, cy, ringRadius, 0, Math.PI * 2);
-      context.fillStyle = "#030308";
+      context.fillStyle = BACKGROUND_DEEP_HEX;
       context.fill();
 
       // Photon ring
@@ -118,7 +125,7 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
       context.stroke();
       context.shadowBlur = 0;
 
-      if (!stateRef.current.paused) {
+      if (!stateRef.current.paused && !stateRef.current.reducedMotion) {
         stateRef.current.angle += 0.003;
       }
       rafRef.current = requestAnimationFrame(draw);
@@ -133,13 +140,18 @@ export function HorizonVisual({ rsKm, tempK }: HorizonVisualProps) {
   }, []);
 
   return (
-    <div className="rounded-xl border border-surface-border bg-background-deep p-3 shadow-card flex flex-col items-center">
+    <Surface background="background-deep" padding="md" className="flex flex-col items-center">
       <div ref={containerRef} className="w-full max-w-[220px] aspect-square">
-        <canvas ref={canvasRef} className="w-full h-full" />
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full"
+          role="img"
+          aria-label={`Illustrative event horizon at a Schwarzschild radius of ${fmtSci(rsKm)} kilometres, not to scale`}
+        />
       </div>
       <div className="text-caption text-muted mt-2 text-center">
         Illustrative event horizon (not to scale)
       </div>
-    </div>
+    </Surface>
   );
 }

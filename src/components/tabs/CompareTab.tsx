@@ -8,6 +8,7 @@ import { fmtSci, fmtTime } from "@/lib/format";
 import { MassInput } from "@/components/shared/MassInput";
 import { RegimeBadge } from "@/components/shared/RegimeBadge";
 import { FactList } from "@/components/shared/FactList";
+import { Surface } from "@/components/shared/Surface";
 import { ExportButton } from "@/components/export/ExportButton";
 import { PRESETS } from "@/data/presets";
 
@@ -29,11 +30,13 @@ function CompareRow({
   valueA,
   valueB,
   unit,
+  zebra,
 }: {
   label: string;
   valueA: number | string;
   valueB: number | string;
   unit?: string;
+  zebra: boolean;
 }) {
   const strA = typeof valueA === "string" ? valueA : fmtSci(valueA);
   const strB = typeof valueB === "string" ? valueB : fmtSci(valueB);
@@ -50,9 +53,13 @@ function CompareRow({
   }
 
   return (
-    <tr className="border-b border-surface-border/40">
+    <tr
+      className={`border-b border-surface-border/40 last:border-0 ${
+        zebra ? "bg-[color-mix(in_oklch,var(--foreground)_3%,transparent)]" : ""
+      }`}
+    >
       <td
-        className="text-right font-mono text-body py-2.5 px-3"
+        className="text-right font-mono text-body py-2.5 px-2 sm:px-3"
         style={{
           color: winner === "A" ? "var(--accent-plasma)" : "var(--muted)",
           fontWeight: winner === "A" ? 600 : 400,
@@ -60,13 +67,13 @@ function CompareRow({
       >
         {strA}
       </td>
-      <td className="text-center px-3">
+      <td className="text-center px-2 sm:px-3">
         <div className="text-caption uppercase tracking-wide text-muted">{label}</div>
         {unit ? <div className="text-caption text-muted/60">{unit}</div> : null}
         {ratioText ? <div className="text-caption text-muted/40">{ratioText}</div> : null}
       </td>
       <td
-        className="text-left font-mono text-body py-2.5 px-3"
+        className="text-left font-mono text-body py-2.5 px-2 sm:px-3"
         style={{
           color: winner === "B" ? "var(--accent-cyan)" : "var(--muted)",
           fontWeight: winner === "B" ? 600 : 400,
@@ -100,8 +107,20 @@ export function CompareTab({
   const factsA = useMemo(() => getFunFacts(propsA, massA), [propsA, massA]);
   const factsB = useMemo(() => getFunFacts(propsB, massB), [propsB, massB]);
 
+  const rows = [
+    { label: "Mass", valueA: propsA.massKg, valueB: propsB.massKg, unit: "kg" },
+    { label: "Radius", valueA: propsA.rsKm, valueB: propsB.rsKm, unit: "km" },
+    { label: "Temperature", valueA: propsA.tempK, valueB: propsB.tempK, unit: "K" },
+    { label: "Entropy", valueA: propsA.entropyJK, valueB: propsB.entropyJK, unit: "J/K" },
+    { label: "Luminosity", valueA: propsA.lumW, valueB: propsB.lumW, unit: "W" },
+    { label: "Surf. Gravity", valueA: propsA.surfGrav, valueB: propsB.surfGrav, unit: "m/s²" },
+    { label: "Evaporation", valueA: fmtTime(propsA.evapYr), valueB: fmtTime(propsB.evapYr) },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
+      <h2 className="text-headline font-display text-foreground">Compare Two Black Holes</h2>
+
       <div className="flex justify-end">
         <ExportButton
           input={{
@@ -121,9 +140,9 @@ export function CompareTab({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-3">
-          <div className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-plasma)" }}>
+          <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-plasma)" }}>
             Black Hole A
-          </div>
+          </h3>
           <MassInput
             massSolar={massA}
             onMassChange={onMassAChange}
@@ -135,9 +154,9 @@ export function CompareTab({
           <RegimeBadge massSolar={massA} />
         </div>
         <div className="flex flex-col gap-3">
-          <div className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-cyan)" }}>
+          <h3 className="text-caption uppercase tracking-widest" style={{ color: "var(--accent-cyan)" }}>
             Black Hole B
-          </div>
+          </h3>
           <MassInput
             massSolar={massB}
             onMassChange={onMassBChange}
@@ -150,19 +169,19 @@ export function CompareTab({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <Surface padding="none" className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr>
+            <tr className="border-b border-surface-border">
               <th
-                className="text-right font-display text-title py-2 px-3"
+                className="text-right font-display text-title py-2 px-2 sm:px-3 truncate max-w-[9rem] sm:max-w-none"
                 style={{ color: "var(--accent-plasma)" }}
               >
                 {presetNameFor(massA)}
               </th>
-              <th className="text-caption text-muted uppercase px-3">vs</th>
+              <th className="text-caption text-muted uppercase px-2 sm:px-3">vs</th>
               <th
-                className="text-left font-display text-title py-2 px-3"
+                className="text-left font-display text-title py-2 px-2 sm:px-3 truncate max-w-[9rem] sm:max-w-none"
                 style={{ color: "var(--accent-cyan)" }}
               >
                 {presetNameFor(massB)}
@@ -170,32 +189,24 @@ export function CompareTab({
             </tr>
           </thead>
           <tbody>
-            <CompareRow label="Mass" valueA={propsA.massKg} valueB={propsB.massKg} unit="kg" />
-            <CompareRow label="Radius" valueA={propsA.rsKm} valueB={propsB.rsKm} unit="km" />
-            <CompareRow label="Temperature" valueA={propsA.tempK} valueB={propsB.tempK} unit="K" />
-            <CompareRow label="Entropy" valueA={propsA.entropyJK} valueB={propsB.entropyJK} unit="J/K" />
-            <CompareRow label="Luminosity" valueA={propsA.lumW} valueB={propsB.lumW} unit="W" />
-            <CompareRow label="Surf. Gravity" valueA={propsA.surfGrav} valueB={propsB.surfGrav} unit="m/s²" />
-            <CompareRow
-              label="Evaporation"
-              valueA={fmtTime(propsA.evapYr)}
-              valueB={fmtTime(propsB.evapYr)}
-            />
+            {rows.map((row, i) => (
+              <CompareRow key={row.label} {...row} zebra={i % 2 === 1} />
+            ))}
           </tbody>
         </table>
-      </div>
+      </Surface>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <div className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
+          <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
             Facts: A
-          </div>
+          </h3>
           <FactList facts={factsA} limit={3} />
         </div>
         <div>
-          <div className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-cyan)" }}>
+          <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-cyan)" }}>
             Facts: B
-          </div>
+          </h3>
           <FactList facts={factsB} limit={3} />
         </div>
       </div>

@@ -9,7 +9,10 @@ import { M_SUN } from "@/lib/physics/constants";
 import { fmtSci, fmtTime } from "@/lib/format";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { FactList } from "@/components/shared/FactList";
+import { RegimeBadge } from "@/components/shared/RegimeBadge";
+import { Surface } from "@/components/shared/Surface";
 import { ExportButton } from "@/components/export/ExportButton";
+import { useRevealOnMount } from "@/hooks/useRevealOnMount";
 
 interface FeedTabProps {
   mass: number;
@@ -32,23 +35,29 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
   const regime = getRegime(mass);
   const facts = useMemo(() => getFunFacts(props, mass), [props, mass]);
   const lastItem = log.length > 0 ? THROWABLES[log[log.length - 1]] : null;
+  const { ref: metricGridRef, revealed: metricGridRevealed } = useRevealOnMount<HTMLDivElement>();
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-title font-display text-foreground">Feed the Black Hole</div>
+          <h2 className="text-headline font-display text-foreground">Feed the Black Hole</h2>
           <div className="text-caption text-muted mt-1">
             Starting mass: {fmtSci(baselineMass)} M☉. Throw things in. See what happens.
           </div>
         </div>
         <div className="flex gap-2">
-          <button
+          <Surface
+            as="button"
+            padding="sm"
+            rounded="lg"
+            interactive
+            accentFocus="plasma"
             onClick={onReset}
-            className="rounded-lg border border-surface-border bg-surface px-3.5 py-1.5 text-caption uppercase tracking-widest text-muted hover:text-accent-plasma transition-colors"
+            className="text-caption uppercase tracking-widest text-muted hover:text-accent-plasma"
           >
             🔄 Reset
-          </button>
+          </Surface>
           <ExportButton
             input={{ mode: "feed", props, regime, massSolar: mass, log: log.map((i) => ({ item: THROWABLES[i] })) }}
             filenameSuffix={`feed-${fmtSci(mass, 2)}`}
@@ -57,68 +66,62 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
       </div>
 
       <div className="flex gap-3 flex-wrap items-center">
-        <div
-          className="inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5"
-          style={{
-            background: `color-mix(in oklch, ${regime.color} 12%, transparent)`,
-            border: `1px solid color-mix(in oklch, ${regime.color} 30%, transparent)`,
-          }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: regime.color }} />
-          <span className="text-body font-medium" style={{ color: regime.color }}>
-            {regime.name}
-          </span>
-        </div>
-        <div className="rounded-lg border border-surface-border bg-surface px-3.5 py-1.5 flex items-center gap-2">
+        <RegimeBadge massSolar={mass} inline />
+        <Surface padding="sm" rounded="lg" className="inline-flex items-center gap-2">
           <span className="text-caption uppercase tracking-widest text-muted">Mass</span>
           <span className="font-mono text-body font-bold" style={{ color: "var(--accent-plasma)" }}>
             {fmtSci(mass)} M☉
           </span>
-        </div>
-        <div className="rounded-lg border border-surface-border bg-surface px-3.5 py-1.5 flex items-center gap-2">
+        </Surface>
+        <Surface padding="sm" rounded="lg" className="inline-flex items-center gap-2">
           <span className="text-caption uppercase tracking-widest text-muted">Consumed</span>
           <span className="font-mono text-body font-bold" style={{ color: "var(--accent-cyan)" }}>
             {log.length}
           </span>
-        </div>
+        </Surface>
       </div>
 
       <div>
-        <div className="text-caption uppercase tracking-widest text-muted mb-2">Throw something in</div>
+        <h3 className="text-caption uppercase tracking-widest text-muted mb-2">Throw something in</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {THROWABLES.map((item, i) => {
             const kgStr = item.kg >= 1e6 ? item.kg.toExponential(2) : item.kg.toLocaleString("en-US");
             return (
-              <button
+              <Surface
                 key={item.name}
+                as="button"
+                padding="sm"
+                rounded="lg"
+                interactive
+                contentLayout="stack"
                 onClick={() => onThrow(i, item.kg / M_SUN)}
-                className="rounded-lg border border-surface-border bg-surface px-3 py-2.5 text-left transition-colors hover:border-[color-mix(in_oklch,var(--accent-cyan)_40%,transparent)] hover:bg-[color-mix(in_oklch,var(--accent-cyan)_6%,var(--surface))]"
+                className="text-left block"
               >
                 <div className="text-lg mb-1">{item.icon}</div>
                 <div className="text-caption text-foreground font-medium">{item.name}</div>
                 <div className="font-mono text-caption text-muted/60 mt-0.5">{kgStr} kg</div>
-              </button>
+              </Surface>
             );
           })}
         </div>
       </div>
 
       <div>
-        <div className="text-caption uppercase tracking-widest text-muted mb-2">Current Properties</div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <h3 className="text-caption uppercase tracking-widest text-muted mb-2">Current Properties</h3>
+        <div ref={metricGridRef} data-reveal data-revealed={metricGridRevealed} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <MetricCard label="Schwarzschild Radius" value={fmtSci(props.rsKm)} unit="km" accent="var(--accent-cyan)" />
           <MetricCard label="Hawking Temperature" value={fmtSci(props.tempK)} unit="Kelvin" accent="var(--accent-plasma)" />
-          <MetricCard label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="#34d399" />
-          <MetricCard label="Evaporation Time" value={fmtTime(props.evapYr)} accent="#facc15" />
+          <MetricCard label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="var(--accent-entropy)" />
+          <MetricCard label="Evaporation Time" value={fmtTime(props.evapYr)} accent="var(--muted)" />
         </div>
       </div>
 
       {log.length > 0 ? (
         <>
           <div>
-            <div className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
+            <h3 className="text-caption uppercase tracking-widest mb-2" style={{ color: "var(--accent-plasma)" }}>
               Growth since you started
-            </div>
+            </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {GROWTH_FIELDS.map(({ label, key }) => {
                 const ratio = startProps[key] !== 0 ? props[key] / startProps[key] : 0;
@@ -130,7 +133,7 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
                     <div className="text-caption uppercase tracking-wide text-muted">{label}</div>
                     <div
                       className="font-mono text-body font-semibold"
-                      style={{ color: grew ? "#34d399" : "var(--accent-plasma)" }}
+                      style={{ color: grew ? "var(--accent-entropy)" : "var(--accent-plasma)" }}
                     >
                       {prefix}
                       {fmtSci(displayRatio)}
@@ -142,31 +145,36 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
           </div>
 
           <div>
-            <div className="text-caption uppercase tracking-widest text-muted mb-2">What you&apos;ve created</div>
+            <h3 className="text-caption uppercase tracking-widest text-muted mb-2">What you&apos;ve created</h3>
             <FactList facts={facts} limit={3} />
           </div>
 
           {lastItem ? (
-            <div className="rounded-lg border border-surface-border bg-surface px-4 py-3">
+            <Surface padding="md" rounded="lg">
               <div className="text-caption text-muted italic leading-relaxed">
                 {lastItem.icon} {lastItem.quip}
               </div>
-            </div>
+            </Surface>
           ) : null}
 
           <div>
-            <div className="text-caption uppercase tracking-widest text-muted mb-2">
+            <h3 className="text-caption uppercase tracking-widest text-muted mb-2">
               Consumed ({log.length} items)
-            </div>
-            <div className="max-h-72 overflow-y-auto flex flex-col gap-0 rounded-lg border border-surface-border bg-surface">
+            </h3>
+            <Surface padding="none" rounded="lg" className="max-h-72 overflow-y-auto flex flex-col gap-0">
               {[...log]
                 .map((idx, i) => ({ idx, i }))
                 .reverse()
-                .map(({ idx, i }) => {
+                .map(({ idx, i }, rowIndex) => {
                   const item = THROWABLES[idx];
                   const kgStr = item.kg >= 1e6 ? item.kg.toExponential(2) : item.kg.toLocaleString("en-US");
                   return (
-                    <div key={i} className="flex gap-2.5 items-start p-3 border-b border-surface-border/40 last:border-0">
+                    <div
+                      key={i}
+                      className={`flex gap-2.5 items-start p-3 border-b border-surface-border/40 last:border-0 ${
+                        rowIndex % 2 === 1 ? "bg-[color-mix(in_oklch,var(--foreground)_3%,transparent)]" : ""
+                      }`}
+                    >
                       <span className="text-base flex-shrink-0">{item.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-baseline gap-2">
@@ -178,7 +186,7 @@ export function FeedTab({ mass, log, baselineMass, onThrow, onReset }: FeedTabPr
                     </div>
                   );
                 })}
-            </div>
+            </Surface>
           </div>
         </>
       ) : null}

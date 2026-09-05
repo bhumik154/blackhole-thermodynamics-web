@@ -16,6 +16,11 @@
   --accent-plasma-soft: #ffb37a;
   --accent-cyan: #4fd8ff;
   --accent-cyan-soft: #8fe8ff;
+  /* Third and last semantic accent, reserved for entropy - the app's
+     namesake quantity - and nothing else. Metric cards that don't have a
+     genuine categorical meaning fall back to --muted instead of borrowing
+     a regime color out of context. */
+  --accent-entropy: #34d399;
 
   --regime-micro: #f472b6;
   --regime-sub: #fb923c;
@@ -61,6 +66,7 @@
   --color-accent-plasma-soft: var(--accent-plasma-soft);
   --color-accent-cyan: var(--accent-cyan);
   --color-accent-cyan-soft: var(--accent-cyan-soft);
+  --color-accent-entropy: var(--accent-entropy);
 
   --color-regime-micro: var(--regime-micro);
   --color-regime-sub: var(--regime-sub);
@@ -107,11 +113,32 @@ html {
   color: var(--background);
 }
 
-/* Horizon visual: idle accretion-disk rotation, paused via [data-paused]
-   while off-screen (see HorizonVisual.tsx's IntersectionObserver), same
-   pattern used for any future canvas/CSS animation that needs to stop
-   ticking when scrolled away. */
-@keyframes horizon-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* Horizon visual: idle accretion-disk rotation, paused while off-screen
+   via stateRef.current.paused inside HorizonVisual.tsx's own RAF loop
+   (see its IntersectionObserver), and halted entirely under
+   prefers-reduced-motion (see that check in the same component). No CSS
+   keyframe is involved - the rotation is drawn directly on canvas. */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Reveal-on-mount: a small fade + rise used by useRevealOnMount for each
+   tab's metric-card grid, toggled via IntersectionObserver rather than a
+   framer-motion AnimatePresence, to stay consistent with the pattern
+   HorizonVisual already uses for its own visibility-driven behavior. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 300ms var(--ease-standard), transform 300ms var(--ease-standard);
+}
+
+[data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: translateY(0);
 }

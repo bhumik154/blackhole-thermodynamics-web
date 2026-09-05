@@ -5,6 +5,7 @@ import { scaleLog } from "d3-scale";
 import { SIZE_REFS } from "@/data/size-refs";
 import { getSizeContext } from "@/data/regimes";
 import { fmtSci } from "@/lib/format";
+import { Surface } from "@/components/shared/Surface";
 
 interface SizeCompareChartProps {
   massSolar: number;
@@ -38,11 +39,16 @@ export function SizeCompareChart({ massSolar, rsKm }: SizeCompareChartProps) {
   const xTicks = xScale.ticks(4);
 
   return (
-    <div className="rounded-xl border border-surface-border bg-surface p-3 shadow-card">
+    <Surface padding="md">
       <div className="text-caption text-muted mb-1 uppercase tracking-wide">
         Size comparison · {getSizeContext(rsKm)}
       </div>
-      <svg viewBox={`0 0 ${WIDTH} ${height + MARGIN.top + MARGIN.bottom}`} className="w-full h-auto">
+      <svg
+        viewBox={`0 0 ${WIDTH} ${height + MARGIN.top + MARGIN.bottom}`}
+        className="w-full h-auto"
+        role="img"
+        aria-label={`Size comparison chart: black hole radius of ${fmtSci(rsKm)} kilometres versus reference objects, ${getSizeContext(rsKm)}`}
+      >
         <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
           {rows.map((row, i) => {
             const barWidth = Math.max(xScale(row.km), 1);
@@ -96,6 +102,6 @@ export function SizeCompareChart({ massSolar, rsKm }: SizeCompareChartProps) {
           ))}
         </g>
       </svg>
-    </div>
+    </Surface>
   );
 }

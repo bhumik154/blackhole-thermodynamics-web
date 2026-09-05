@@ -14,6 +14,7 @@ import { HorizonVisual } from "@/components/shared/HorizonVisual";
 import { ScalingChart } from "@/components/charts/ScalingChart";
 import { SizeCompareChart } from "@/components/charts/SizeCompareChart";
 import { ExportButton } from "@/components/export/ExportButton";
+import { useRevealOnMount } from "@/hooks/useRevealOnMount";
 
 interface SingleTabProps {
   massSolar: number;
@@ -25,7 +26,7 @@ interface SingleTabProps {
 const SCALING_FIELDS = [
   { key: "rsKm", label: "Schwarzschild Radius", unit: "km", color: "var(--accent-cyan)" },
   { key: "tempK", label: "Hawking Temperature", unit: "K", color: "var(--accent-plasma)" },
-  { key: "entropyJK", label: "B-H Entropy", unit: "J/K", color: "#34d399" },
+  { key: "entropyJK", label: "B-H Entropy", unit: "J/K", color: "var(--accent-entropy)" },
   { key: "evapYr", label: "Evaporation Time", unit: "yr", color: "#facc15" },
 ] as const;
 
@@ -37,9 +38,12 @@ export function SingleTab({ massSolar, preset, onMassChange, onPresetChange }: S
   const facts = useMemo(() => getFunFacts(props, massSolar), [props, massSolar]);
   const regime = getRegime(massSolar);
   const activeField = SCALING_FIELDS.find((f) => f.key === scalingField)!;
+  const { ref: metricGridRef, revealed: metricGridRevealed } = useRevealOnMount<HTMLDivElement>();
 
   return (
     <div className="flex flex-col gap-6">
+      <h2 className="text-headline font-display text-foreground">Single Black Hole</h2>
+
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <MassInput
           massSolar={massSolar}
@@ -56,38 +60,38 @@ export function SingleTab({ massSolar, preset, onMassChange, onPresetChange }: S
 
       <RegimeBadge massSolar={massSolar} />
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div ref={metricGridRef} data-reveal data-revealed={metricGridRevealed} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <MetricCard label="Schwarzschild Radius" value={fmtSci(props.rsKm)} unit="km" accent="var(--accent-cyan)" />
         <MetricCard label="Hawking Temperature" value={fmtSci(props.tempK)} unit="Kelvin" accent="var(--accent-plasma)" />
-        <MetricCard label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="#34d399" />
-        <MetricCard label="Luminosity" value={fmtSci(props.lumW)} unit="Watts" accent="#f472b6" />
-        <MetricCard label="Surface Gravity" value={fmtSci(props.surfGrav)} unit="m/s²" accent="#a78bfa" />
-        <MetricCard label="Evaporation Time" value={fmtTime(props.evapYr)} accent="#facc15" />
+        <MetricCard label="B-H Entropy" value={fmtSci(props.entropyJK)} unit="J/K" accent="var(--accent-entropy)" />
+        <MetricCard label="Luminosity" value={fmtSci(props.lumW)} unit="Watts" accent="var(--muted)" />
+        <MetricCard label="Surface Gravity" value={fmtSci(props.surfGrav)} unit="m/s²" accent="var(--muted)" />
+        <MetricCard label="Evaporation Time" value={fmtTime(props.evapYr)} accent="var(--muted)" />
         <MetricCard label="Mass" value={fmtSci(props.massKg)} unit="kg" accent="var(--muted)" />
         <MetricCard label="Event Horizon" value={fmtSci(props.rsM)} unit="metres" accent="var(--muted)" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-start">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-4 items-start">
         <div className="flex flex-col gap-2">
-          <div className="text-caption uppercase tracking-widest text-muted">Did you know?</div>
+          <h3 className="text-caption uppercase tracking-widest text-muted">Did you know?</h3>
           <FactList facts={facts} limit={5} />
         </div>
         <HorizonVisual rsKm={props.rsKm} tempK={props.tempK} />
       </div>
 
       <div>
-        <div className="text-caption uppercase tracking-widest text-muted mb-2">Size Comparison</div>
+        <h3 className="text-caption uppercase tracking-widest text-muted mb-2">Size Comparison</h3>
         <SizeCompareChart massSolar={massSolar} rsKm={props.rsKm} />
       </div>
 
       <div>
-        <div className="text-caption uppercase tracking-widest text-muted mb-2">Scaling Relations</div>
+        <h3 className="text-caption uppercase tracking-widest text-muted mb-2">Scaling Relations</h3>
         <div className="flex gap-2 mb-3 flex-wrap">
           {SCALING_FIELDS.map((f) => (
             <button
               key={f.key}
               onClick={() => setScalingField(f.key)}
-              className="rounded-full px-3 py-1 text-caption transition-colors"
+              className="min-h-11 rounded-full px-3 py-1 text-caption transition-colors duration-150 ease-[var(--ease-standard)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[color-mix(in_oklch,var(--accent-cyan)_35%,transparent)]"
               style={
                 scalingField === f.key
                   ? { background: "color-mix(in oklch, var(--accent-cyan) 18%, transparent)", color: "var(--accent-cyan-soft)" }

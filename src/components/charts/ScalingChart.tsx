@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import { scaleLog } from "d3-scale";
 import { line as d3line } from "d3-shape";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ScalingCurves } from "@/lib/physics/scaling";
 import { fmtSci } from "@/lib/format";
-import { standardEase } from "@/lib/motion";
+import { standardEase, DURATION } from "@/lib/motion";
+import { Surface } from "@/components/shared/Surface";
 
 interface ScalingChartProps {
   curves: ScalingCurves;
@@ -32,6 +33,7 @@ export function ScalingChart({
   currentValue,
 }: ScalingChartProps) {
   const [hover, setHover] = useState<{ x: number; mass: number; value: number } | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const { xScale, yScale, pathD, markerPos } = useMemo(() => {
     const xs = curves.massesSolar;
@@ -82,13 +84,13 @@ export function ScalingChart({
   }
 
   return (
-    <div className="rounded-xl border border-surface-border bg-surface p-3 shadow-card">
+    <Surface padding="md">
       <div className="text-caption text-muted mb-1 uppercase tracking-wide">{label}</div>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="w-full h-auto"
         role="img"
-        aria-label={`${label} scaling chart`}
+        aria-label={`${label} scaling chart, current value ${fmtSci(currentValue)} ${unit} at ${fmtSci(currentMass)} solar masses`}
       >
         <defs>
           <filter id={`glow-${field}`} x="-50%" y="-50%" width="200%" height="200%">
@@ -127,7 +129,7 @@ export function ScalingChart({
             strokeWidth={1.5}
             initial={false}
             animate={{ cx: markerPos.x, cy: markerPos.y }}
-            transition={{ duration: 0.3, ease: standardEase }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: DURATION.base, ease: standardEase }}
           />
           {hover ? (
             <line
@@ -180,6 +182,6 @@ export function ScalingChart({
           ? `${fmtSci(hover.mass)} M☉ · ${fmtSci(hover.value)} ${unit}`
           : `Mass (M☉) vs ${label} (${unit})`}
       </div>
-    </div>
+    </Surface>
   );
 }
